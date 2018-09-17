@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- User.hbm.xml一般写在实体所对应的包内 -->
+<!-- 引入DTD约束 hibernate-mapping-3.0.dtd中找 -->
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+    <hibernate-mapping>
+    <class name="hibernate.entity.Customer" table="Customer">
+   
+   	<id name="cid" column="cid">
+		<generator class="native"></generator>
+	</id>
+	<property name="custName" column="custName"></property>
+	<property name="custLevel" column="custLevel"></property>
+	<property name="custSource" column="custSource"></property>
+	<property name="custMobile" column="custMobile"></property>
+	<!-- 在客户映射文件中，表示所有联系人 
+		使用set标签表示所有联系人
+		set标签里面有name属性：
+		     属性值写在客户实体类里面表示联系人的set集合名称
+		     
+		 inverse属性默认值：false不放弃关系维护
+		                true表示放弃关系维护
+		                
+		 fetch：值select（默认）
+	 	 lazy：值
+	 	   true：延迟（默认）
+           false：不延迟
+           extra：极其延迟
+           
+         batch-size：批量大小，值越大，发送mysql语句越少
+	-->
+	<set name="setLinkMan" inverse="true" cascade="save-update,delete" fetch="select" lazy="extra" batch-size="10">
+		<!-- 一对多建表，有外键
+			hibernate机制：双向维护外键，在一和多那一方都配置外键	
+			column属性值：外键名称
+		 -->
+		<key column="clid"></key>
+		<!-- 客户所有的联系人，class里面写联系人实体类全路径 -->
+		<one-to-many class="hibernate.entity.LinkMan"/>
+	</set>
+    </class>
+    </hibernate-mapping>

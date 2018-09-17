@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+    <hibernate-mapping>
+	<class name="hibernate.entity.People" table="People">
+		<!--name:实体属性;column:列名  -->
+		<id name="pid" column="pid">
+			<generator class="native"></generator>
+		</id>
+		<property name="name" column="name"></property>
+		<!-- 
+		   name:set名
+		   table:第三张关系表名
+		 -->
+		<set name="roles" table="people_role" cascade="save-update,delete">
+			<!-- 当前映射文件杂第三张表的外键名 -->
+			<key column="people_id"></key>
+			<!-- column:role表在第三张表中的外键 -->
+			<many-to-many class="hibernate.entity.Role" column="role_id"></many-to-many>
+		</set>
+	</class>    
+    </hibernate-mapping>
+    

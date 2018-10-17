@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context" 
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd 
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+        
+	 <!-- apo配置操作-->
+	 <!-- 配置对象  -->
+	 <bean id="book1" class="cn.webrelax.aop.Book"></bean>
+	 <bean id="mybook1" class="cn.webrelax.aop.MyBook"></bean>
+	 
+	 <aop:config>
+	 	<!-- 配置切入点 -->
+	 	<aop:pointcut expression="execution(* cn.webrelax.aop.Book.*(..))" id="pointcut1"/>
+	 	<!-- 配置切面
+	 		切面：把增强用到方法的过程
+	 	 -->
+	 	<aop:aspect ref="mybook1" >
+	 		<!-- 配置增强类型 
+				method： 增强类里面使用哪个方法作为前置、后置、环绕
+			-->
+	 		<aop:before method="before1" pointcut-ref="pointcut1"/>
+	 		<aop:after method="after1" pointcut-ref="pointcut1"/>
+	 		<aop:around method="around1" pointcut-ref="pointcut1"/>
+	 		
+	 	</aop:aspect>
+	 
+	 </aop:config>
+</beans>

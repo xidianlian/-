@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+ <configuration>
+  	
+  	<properties>
+  		<property name="driver" value="com.mysql.jdbc.Driver"/>
+  		<property name="url" value="jdbc:mysql://localhost:3306/mybatis?characterEncoding=utf-8"/>
+  		<property name="username" value="root"/>
+  		<property name="password" value="root1234"/>
+  	</properties>
+  	<!-- 延迟查询 配置
+		lazyLoadingEnabled：全局性设置懒加载，如果设为‘false’，则所有相关联的都会被初始化加载。
+		aggressiveLazyLoading：当设置为‘true’的时候，懒加载的对象可能被任何懒属性全部加载。
+							      否则，每个属性都按需加载。
+	 -->
+	<settings>
+		<!-- 打开延迟加载 的开关 -->
+		<setting name="lazyLoadingEnabled" value="true"/>
+		<!-- 将积极加载改为消极加载即按需要加载 -->
+		<setting name="aggressiveLazyLoading" value="false"/>
+		<!-- 开启二级缓存  默认值为true-->
+		<setting name="cacheEnabled" value="true"/>
+	</settings>
+  	<typeAliases> 
+		<!-- 定义单个pojo类别名，方便在配置文件中不用写那么长的类型名
+		type:类的全路劲名称
+		alias:别名
+		 -->
+<!-- 		<typeAlias type="domain.User" alias="user"/> -->
+		
+		<!-- 使用包扫描的方式批量定义别名 
+		定以后别名等于类名,不区分大小写,但是建议按照java命名规则来,首字母小写,以后每个单词的首字母大写
+		-->
+		<package name="domain"/>
+	</typeAliases>
+	
+	
+	<!-- 和spring整合后 environments配置将废除-->
+	<environments default="development">
+		<environment id="development">
+		<!-- 使用jdbc事务管理-->
+		<transactionManager type="JDBC" />
+		<!-- 数据库连接池-->
+		<dataSource type="POOLED">
+			<property name="driver" value="${driver}" />
+			<property name="url" value="${url}" />
+			<property name="username" value="${username}" />
+			<property name="password" value="${password}" />
+		</dataSource>
+		</environment>
+	</environments>
+	<mappers>
+		<!-- 
+		动态代理dao
+		使用class属性引入接口的全路径名称:
+		使用规则:
+			1. 接口的名称和映射文件名称除扩展名外要完全相同
+			2. 接口和映射文件要放在同一个目录下
+		 -->
+<!-- 		<mapper class="mapper.UserMapper"/> -->
+		
+		<!-- 使用包扫描的方式批量引入Mapper接口 
+				使用规则:
+				1. 接口的名称和映射文件名称除扩展名外要完全相同
+				2. 接口和映射文件要放在同一个目录下
+		-->
+		<package name="mapper"/>
+	</mappers>
+	
+ </configuration>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- 
+		常用标签属性：
+		（1）id属性：起名称，id属性值名称任意命名
+ 			id属性值，不能包含特殊符号
+			根据id值得到配置对象
+		（2）class属性：创建对象所在类的全路径
+		（3）name属性：功能和id属性一样的，id属性值不能包含特殊符号，但是在name属性值里面可以包含特殊符号
+			name属性是历史遗留问题（struts1），一般现在不用
+		（4）scope属性
+			singleton：默认值，单例(重点),创建的都是同一个对象，可以输出其地址查看
+			prototype：多例(重点)
+			
+			request：创建对象把对象放到request域里面
+			session：创建对象把对象放到session域里面
+			globalSession：创建对象把对象放到globalSession里面
+			
+			
+	
+	 -->
+	<!-- 最常用的， 使用类的无参数构造创建实例-->
+	<bean id="user" class="cn.webrelax.entity.User" scope="prototype"></bean>
+	
+	<!--使用静态工厂创建对象  -->
+	<bean id="bean2" class="cn.webrelax.bean.StaticFactory" factory-method="getBean2"></bean>
+	
+	<!-- 使用工厂实例，调用其中的普通方法创建Bean3实例 -->
+	<!-- 创建工厂对象 -->
+	<bean id="bean3Factory" class="cn.webrelax.bean.FactoryInstance"></bean>
+	<bean id="bean3" factory-bean="bean3Factory" factory-method="getBean3"> </bean>
+	
+
+	
+	<!-- 给类注入属性 -->
+	<!-- 1.有参构造注入 -->
+	<bean id="property1" class="cn.webrelax.property.Property1">
+		<!-- 给Property1类中的username属性注入值 -->
+		<constructor-arg name="username" value="xidian_lian"></constructor-arg>
+	</bean>
+	
+	<!-- 2.使用set方法注入属性 -->
+	<bean id="book" class="cn.webrelax.property.Property2">
+		<!-- 注入属性值
+		 name属性值：类里面定义的属性名称(setXXX,name=XXX)
+		 value属性：设置具体的值
+		 实际的属性名是bookName，但setter方法是setBookName1(String bookName);
+		 -->
+		 <property name="bookName1" value="降龙十八掌"></property>
+	</bean>
+	<!-- 同理可以注入对象 -->
+	<!-- 例如注入user对象，在之前的bean标签已经写了user了 -->
+	<bean id="property3" class="cn.webrelax.property.Property3">
+		<!-- 注入user对象 
+			name属性值：Property3类里面属性名称
+			              现在不要写value属性，因为刚才是字符串，现在是对象
+			写ref属性：User配置bean标签中id值
+		-->
+		<property name="user1" ref="user"></property>
+	</bean>
+	
+	<!-- 同理注入复杂类型 数组、list、map、properties -->
+	<bean id="people" class="cn.webrelax.property.People">
+		<!--name为People类中的属性名  -->
+		<property name="arr">
+			<list>
+			<value>库里</value>
+			<value>克莱</value>
+			</list>
+				
+			
+		</property>
+		<property name="list">
+			<list>
+				<value>格林</value>
+				<value>杜兰特</value>
+			</list>
+		</property>
+		<property name="mp">
+			<map>
+				<entry key="one" value="考神"></entry>
+				<entry key="two" value="利文斯顿"></entry>
+			</map>
+		</property>
+		<property name="properties">
+			<props>
+				<prop key="driverclass">com.mysql.jdbc.Driver</prop>
+				<prop key="usernmae">root</prop>
+			</props>
+		</property>
+	</bean>
+</beans>

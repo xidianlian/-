@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	servletName-serlvet.xml文件，默认放在WEB-INF下，servletName是web.xml中配置Dispatcher servlet的名称。
+	当然，此文件可放在任何位置，但是要在web.xml中进行如下配置：
+	<init-para>
+		<para-name>contextConfigLocation</para-name>
+		<para-value>/WEB-INF/config/xxx.xml</para-value>
+	</init-para>
+ -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       ">
+       
+       <!-- 扫描包中的注解 -->
+       <context:component-scan base-package="controller" />
+       
+       <!--
+       annotation-driven元素注册用于支持基于注解的控制器的请求处理方法的bean对象
+       resources 元素指示SpringMVC那些静态资源需要单独处理
+       -->
+ 	   <mvc:annotation-driven />
+ 	   <mvc:resources location="/css/" mapping="/css/**"></mvc:resources> <!-- 确保在/css目录下的所有文件可见 -->
+ 	   <mvc:resources location="/" mapping="/*.html"></mvc:resources><!-- 允许显示所有的.html -->
+		 	   
+	<!-- View Resolver 配置试图解析器
+		如在控制器里跳转到 /WEB-INF/jsp/ProductForm.jsp 现在只需写ProductForm
+	 -->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+</beans>

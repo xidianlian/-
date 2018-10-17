@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+mapper接口代理实现编写规则:
+	1. 映射文件中namespace要等于接口的全路径名称
+	2. 映射文件中sql语句id要等于接口的方法名称
+	3. 映射文件中传入参数类型要等于接口方法的传入参数类型
+	4. 映射文件中返回结果集类型要等于接口方法的返回值类型
+ -->
+ <!-- 
+ 	resultType：
+ 		将查询结果按照sql列名pojo属性名一致性映射到pojo中
+ 		使用resultType实现较为简单，如果pojo中没有包括查询出来的列名，需要增加列名对应的属性，即可完成映射。
+		如果没有查询结果的特殊要求建议使用resultType。
+	resultMap：
+		需要单独定义resultMap，实现有点麻烦，如果对查询结果有特殊的要求，使用resultMap可以完成将关联查询映射pojo的属性中。
+		resultMap可以实现延迟加载，resultType无法实现延迟加载
+		association:将关联查询信息映射到一个pojo对象中
+		collection:将关联查询信息映射到一个list对象中
+		
+  -->
+<mapper namespace="mapper.OrdersAndUserMapper">
+	<!-- 一对一  查询，通过继承orders实现;
+		从orders的角度来看，它与User的关系是一对一，一个order只有一个user
+		而从User的角度来看，它与order的关系是一对多，一个user可以有多个order
+		
+		同理，orders和orderdetail是一对多的关系
+		items和orderdetail是一对多的关系
+		
+		关联查询：orders-> orderdetail <-items  orders和items就是多对多的关系
+		user->orders->orderdetail<-items      user和items也是多对多的关系
+	-->
+	<select id="findOrdersUser" resultType="OrdersAndUser">
+		SELECT orders.*,user.username,user.birthday,user.sex 
+		from user,orders 
+		where orders.user_id=user.id;
+	</select>
+	<!-- 一对一查询订单关联查询用户信息，使用resultmap 
+		id：mapper接口中的方法名
+		resultMap:对应<resultMap>标签的id名
+	 -->
+	<select id="findOrdersUserResultMap" resultMap="OrdersUserResultMap">
+		SELECT orders.*,user.username,user.birthday,user.sex ,user.address
+		from user,orders 
+		where orders.user_id=user.id;
+	</select>
+	<!-- 一对一查询 orders->user，利用resultMap,将查询结果中的订单信息映射到Orders对象中
+		orders作为主查询
+	 -->
+	<resultMap id="OrdersUserResultMap" type="domain.Orders">
+		<!-- 配置要映射的订单信息 -->
+		<!-- id: 指定查询列中的唯一标识（主键），如果是联合主键，写出所有id. 当然也可以写它外键，关键看查询的显示字段（列名）写没写
+			 column：数据库中的列名
+			 property:对应的Oders对象的属性名
+			 这里我习惯写成一样的
+		-->
+		<id column="id" property="id"/>
+		<result column="user_id" property="user_id"/>
+		<result column="number" property="number"/>
+		<result column="createtime" property="createtime"/>
+		<result column="note" property="note"/>
+		
+		<!-- 配置要映射的用户信息 -->
+		<!-- association:用于映射级联查询单个对象的信息 
+			property:要将级联查询的用户信息映射到Order中哪个属性
+		-->
+		<association property="user" javaType="domain.User">
+			<!-- 
+				id:级联查询用户的唯一标识（外键）
+			 -->
+			<id column="user_id"  property="id"/>
+			<result column="username" property="username"/>
+			<result column="sex" property="sex"/>
+			<result column="birthday" property="birthday"/>
+		</association>
+	
+	</resultMap>
+	
+	
+	
+	<!-- 
+		一对多
+		查询订单-订单明细的resultMap
+		如果没写table1 left/right join table2 on语句，默认为内连接
+		用数据库语句查询出来的表是：
+		id user_id  number    		createtime			note	   username    sex  address	 detail_id	items_id items_num orders_id
+		3	1	   1000010		2015-02-04 13:22:35		null		王五			2	 null		1		1			1			3
+		3	1	   1000010		2015-02-04 13:22:35		null		王五			2	 null		2		2			3			3
+		4	1	   1000011		2015-02-03 13:22:41		null		王五			2	 null		3		3			4			4
+		4	1	   1000011		2015-02-03 13:22:41		null		王五			2	 null		4		2			3			4
+		
+		会发现，除了detail信息外，其他部分都一样。那么该怎么存呢？
+		在Orders里写入属性，List<Ordersdetail>
+		
+		通过配置测试结果为：
+		Orders [id=3, user_id=1, number=1000010, createtime=Wed Feb 04 13:22:35 CST 2015, note=null, user=User [id=1, username=王五, sex=2, birthday=null, address=null], orderdetails=[Orderdetail [id=1, ordersId=3, itemsId=1, itemsNum=1], Orderdetail [id=2, ordersId=3, itemsId=2, itemsNum=3]]]
+		Orders [id=4, user_id=1, number=1000011, createtime=Tue Feb 03 13:22:41 CST 2015, note=null, user=User [id=1, username=王五, sex=2, birthday=null, address=null], orderdetails=[Orderdetail [id=3, ordersId=4, itemsId=3, itemsNum=4], Orderdetail [id=4, ordersId=4, itemsId=2, itemsNum=3]]]
+
+	-->
+	<select id="findOrdersAndOrderDetailResultMap" resultMap="OrdersAndOrderDetailResultMap">
+		select
+			orders.* , 
+			USER.username,USER.sex,USER.address,
+			orderdetail.id as detail_id,
+			orderdetail.items_id,
+			orderdetail.items_num,
+			orderdetail.orders_id
+		from
+			orders,user,orderdetail
+		where 
+			orders.user_id=user.id and
+			orderdetail.orders_id=orders.id
+	</select>
+	
+	
+	<!-- 一对多 查询订单-订单明细的resultMap 
+		orders->orderdetail
+		orders作为主查询
+	-->
+	<!-- 使用继承后，orders信息和user信息就不必再写了 -->
+	<resultMap  id="OrdersAndOrderDetailResultMap" type="domain.Orders" extends="OrdersUserResultMap">
+		<!--  
+		<id column="id" property="id"/>
+		<result column="user_id" property="user_id"/>
+		<result column="number" property="number"/>
+		<result column="createtime" property="createtime"/>
+		<result column="note" property="note"/>
+		
+		<association property="user" javaType="domain.User" >
+			<id column="user_id"  property="id"/>
+			<result column="username" property="username"/>
+			<result column="sex" property="sex"/>
+			<result column="birthday" property="birthday"/>
+		</association>
+		-->
+		
+		<!-- 明细信息 
+			一个订单关联查询出多条明细，保存到Orders类中的List<orderdetails>
+			property:Oders类中的属性名
+			ofType:list集合中pojo类型
+		-->
+		<collection property="orderdetails" ofType="domain.Orderdetail">
+			<!--
+				id标签，订单明细唯一标识
+				这里列名为别名
+			 -->
+			<id column="detail_id" property="id"/>
+			<result column="orders_id" property="ordersId"/>
+			<result column="items_id" property="itemsId"/>
+			<result column="items_num" property="itemsNum"/>
+		
+		</collection>
+		
+	</resultMap>
+	
+	
+	
+	<!-- 多对多 查询用户->订单->详细信息->items表使用resultMap 即用户购买商品的信息 -->
+	<select id="findUserAndItemsResultMap" resultMap="UserAndItemsResultMap">
+	    select
+			orders.* , 
+			USER.username,USER.sex,USER.address,
+			orderdetail.id as detail_id,
+			orderdetail.items_id,
+			orderdetail.items_num,
+			items.name as items_name,
+			items.price,
+		  items.detail,
+			items.pic,
+			items.createtime as items_createtime
+
+	    from
+			orders,user,orderdetail,items
+		where 
+			orders.user_id=user.id and
+			orderdetail.orders_id=orders.id AND
+			orderdetail.items_id=items.id
+	
+	</select>
+	<!-- 多对多： 用户-购买商品 -->
+	<resultMap type="domain.User" id="UserAndItemsResultMap">
+		<!-- id: 指定查询列中的唯一标识
+			 这里使用在orders中的外键，因为user.id不在sql语句查询字段中
+		 -->
+		<id column="user_id" property="id" />
+		<result column="username" property="username"/>
+		<result column="address" property="address"/>
+		<result column="sex" property="sex"/>
+		
+		<!-- 一个用户对应多个订单,在Use类中写入list<Orders>属性 -->
+		<collection property="listOrders" ofType="domain.Orders">
+			<id column="id" property="id"/>
+			<result column="user_id" property="user_id"/>
+			<result column="createtime" property="createtime"/>
+			<result column="number" property="number"/>
+			<result column="note" property="note"/>
+			
+			<!-- orders->orderdetail 一对多   -->
+			<collection property="orderdetails" ofType="domain.Orderdetail">
+				<id column="detail_id" property="id"/>
+				<result column="items_id" property="itemsId"/>
+				<result column="items_num" property="itemsNum"/>
+				
+				<!-- 一个明细对应一个商品（一对一） 在Orderdetail类中添加Items属性-->
+				<association property="items" javaType="domain.Items">
+					<id column="items_id" property="id"/>
+					<!-- column:sql语句中的别名 -->
+					<result column="items_name" property="name"/>
+					<result column="price" property="price"/>
+					<result column="detail" property="detail"/>
+					<result column="pic" property="pic"/>
+					<result column="createtime" property="createtime"/>
+				</association>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<!-- 延迟加载 -->
+	<!-- 查询订单关联查询用户，用户信息需要延迟加载 -->
+	<select id="findOrdersUserLazyLoading" resultMap="OrdersUserLazyLoading">
+		select * from orders
+	</select>
+	<resultMap type="domain.Orders" id="OrdersUserLazyLoading">
+		<id column="id" property="id"/>
+		<result column="user_id" property="user_id"/>
+		<result column="number" property="number"/>
+		<result column="createtime" property="createtime"/>
+		<result column="note" property="note"/>
+		<!-- 实现对用户信息进行延迟加载
+			select：指定延迟加载需要执行的statement的id（是根据user_id查询用户信息的statement）
+			这里就可以使用userMapper.xml中findUserById完成根据用户id(user_id)用户信息的查询，如果findUserById不在本mapper中需要前边加namespace
+			column：订单信息中关联用户信息查询的列，是orders.user_id
+			关联查询的sql理解为：
+			SELECT orders.*,
+				(SELECT username FROM USER WHERE orders.user_id = user.id)username,即这两句话通过findUserById来实现
+				(SELECT sex FROM USER WHERE orders.user_id = user.id)sex
+			FROM orders
+		-->
+		<association property="user" javaType="domain.User"
+			select="mapper.UserMapper.findUserById" column="user_id">
+		
+		</association>
+	</resultMap>
+	
+	
+</mapper>

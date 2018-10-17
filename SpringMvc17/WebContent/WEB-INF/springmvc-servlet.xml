@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	servletName-serlvet.xml文件，默认放在WEB-INF下，servletName是web.xml中配置Dispatcher servlet的名称。
+	当然，此文件可放在任何位置，但是要在web.xml中进行如下配置：
+	<init-para>
+		<para-name>contextConfigLocation</para-name>
+		<para-value>/WEB-INF/config/xxx.xml</para-value>
+	</init-para>
+ -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+       
+    <bean name="/product_input.action" class="controller.InputProductController"/>
+    <bean name="/product_save.action" class="controller.SavePeoductController"/>
+
+	<!-- View Resolver 配置试图解析器
+		如在控制器里跳转到 /WEB-INF/jsp/ProductForm.jsp 现在只需写ProductForm
+	 -->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+</beans>

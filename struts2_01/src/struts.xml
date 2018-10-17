@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--1.创建struts2核心配置文件
+ 	 核心配置文件名称和位置是固定的
+ 	位置必须在src下面，名称 struts.xml
+ 	2.引入dtd约束
+ -->
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+	<!--3.action配置 -->
+<struts>
+	<!-- 引入别人写的配置文件 -->
+<!-- 	<include file=""></include> -->
+	<!-- struts2常量配置 -->
+	<!-- 
+	（1）表单提交数据到action里面，在action可以获取表单提交数据，
+	（2）之前解决表单提交数据有中文，有乱码问题，解决：
+		post提交直接设置编码
+		get提交做编码转换
+	（3）如果在action获取表单通过post方式提交中文，中文乱码问题帮解决了，不需要自己处理问题
+	 -->
+	<constant name="struts.i18n.encoding" value="UTF-8"></constant>
+	<!-- package标签
+	1.类似于代码包，区别不同的action，要配置action，必须首先写package标签，在package里面才能 配置action
+	2.package标签属性
+	（1）name属性
+		name属性值根功能本身没有关系的，
+		在一个配置文件中可以写多个package标签，name属性值不能相同的
+	（2）extends属性
+		属性值固定的，struts-default
+ 		写了这个属性之后，在package里面配置的类具有action功能
+ 	（3）namespace属性
+		namespace属性值和action标签里面的name属性值构成访问路径
+ 		如下配置：构成的路径就是/hello
+	 -->
+	<package name="hellodemo" extends="struts-default" namespace="/">
+		<!-- action标签
+			（1）name属性
+			 	namespace属性值和action标签里面的name属性值构成访问路径
+			 	在package标签里面写多个action标签，但是action的name属性值不能相同的
+			（2）class:全路径的类名
+			（3）method属性
+				比如在action里面默认执行的方法execute方法，但是在action里面写其他的方法
+				让action里面多个方法执行，使用method进行配置
+		-->
+		<action name="hello" class="struts2Test.HelloAction" method="execute">
+			<!-- result标签
+				（1） 配置方法的返回值到页码,这里配置好了，就相当于servlet里转发到jsp页面
+				（2）name属性：与方法返回值一样
+				（3）type属性
+					配置如何到路径中（转发或者重定向）
+ 					type属性默认值 做转发操作
+			-->
+			<result name="ok">/hello.jsp </result>
+		</action>
+		<!-- 
+			name属性值里面写符号 * 
+			(1)执行action里面的add方法，访问 book_add，使用book_*可以匹配到，*相当于变成 add
+			
+			(2)执行action里面的update方法，访问book_update，使用book_*可以匹配到，*相当于变成 update
+			上面两个路径使用 book_* 可以匹配到
+			method属性写*值
+		 -->
+		<action name="book_*" class="struts2Test.HelloAction" method="{1}">
+		</action>
+	</package>
+
+</struts>
+	

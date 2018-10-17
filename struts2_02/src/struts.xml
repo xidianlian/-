@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<constant name="struts.i18n.encoding" value="UTF-8"></constant>
+	<package name="day3demo" extends="struts-default" namespace="/">
+		<!-- 
+			创建两个action，执行默认的方法execute方法，让两个action的方法都返回success，返回success之后，配置到同一个页面里面
+			（1）如果多个action，方法里面返回值相同的，到页面也是相同的，这个时候可以使用全局结果页面配置
+			（2）配置全局页面，也配置了局部页面，最终以局部配置为准
+		 -->
+		<global-results>
+			<result name="success">/hello.jsp</result>
+		</global-results>
+		<!-- 
+			<result>里的 type
+			dispatcher:转发（默认），
+			redirect：重定向为(网页地址会改为hello.jsp)
+			chain:配置到其他的action里面
+		 -->
+		<action name="order" class="cn.webrelax.action.OrdersAction" method="execute">
+			<result name="success" type="dispatcher">/hello.jsp</result>
+		</action>
+		<action name="book" class="cn.webrelax.action.BookAction" method="execute">
+			<result name="success" type="redirect">/hello.jsp</result>
+		</action>
+<!-- 		<action name="book" class="cn.webrelax.action.BookAction" method="execute"> -->
+<!-- 			<result name="success" type="chain">order</result> -->
+<!-- 		</action> -->
+	</package>
+	<!-- 获取表单数据 -->
+	<package name="form" extends="struts-default" namespace="/">
+		<action name="form1" class="cn.webrelax.form.Form1Action"></action>
+		<action name="form2" class="cn.webrelax.form.Form2Action"></action>
+		<action name="form3" class="cn.webrelax.form.Form3Action"></action>
+		
+		<action name="data1" class="cn.webrelax.data.DataAction1"></action>
+		<action name="data2" class="cn.webrelax.data.DataAction2"></action>
+		<action name="data3" class="cn.webrelax.data.DataAction3"></action>
+		<action name="data4" class="cn.webrelax.data.DataAction4"></action>
+		
+		<action name="list" class="cn.webrelax.data.ListAction"></action>
+		<action name="map" class="cn.webrelax.data.MapAction"></action>
+	</package>
+</struts>

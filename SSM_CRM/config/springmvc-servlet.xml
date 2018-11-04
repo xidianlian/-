@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       ">
+        <context:property-placeholder location="classpath:resource.properties" />
+       <!-- 扫描包中的注解 -->
+      	 <context:component-scan base-package="cn.webrelax.controller" />
+      	 <context:component-scan base-package="cn.webrelax.service" />
+       	 <context:component-scan base-package="cn.webrelax.formatter"/>
+      
+      
+       <!--
+       annotation-driven元素注册用于支持基于注解的控制器的请求处理方法的bean对象
+       resources 元素指示SpringMVC那些静态资源需要单独处理
+       -->
+ 	   <!-- 注解驱动:
+    		替我们显示的配置了最新版的注解的处理器映射器和处理器适配器 -->
+ 	   <mvc:annotation-driven conversion-service="conversionService"/>
+<!--  	   <mvc:resources location="/css/" mapping="/css/**"></mvc:resources> 确保在/css目录下的所有文件可见 -->
+<!--  	   <mvc:resources location="/" mapping="/*.html"></mvc:resources>允许显示所有的.html -->
+		<mvc:default-servlet-handler/>
+		<!-- 日期转换器 -->
+	   <bean id="conversionService"
+		class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+	        <property name="formatters">
+	            <set>
+	                <bean class="cn.webrelax.formatter.DateFormatter">
+	                    <constructor-arg type="java.lang.String" value="MM-dd-yyyy" />
+	                </bean>
+	            </set>
+	        </property>
+		</bean> 	   
+	<!-- View Resolver 配置试图解析器
+		如在控制器里跳转到 /WEB-INF/jsp/ProductForm.jsp 现在只需写ProductForm
+	 -->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+</beans>

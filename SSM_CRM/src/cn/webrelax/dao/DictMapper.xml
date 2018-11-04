@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.webrelax.dao.DictMapper">
+	<select id="findDictByTypeCode" parameterType="string" resultMap="DictByTypeCodeResultMap">
+		select * from base_dict as a 
+		where a.dict_enable=1 and a.dict_type_code=#{code} 
+		ORDER BY a.dict_sort
+	</select>
+	<resultMap type="cn.webrelax.pojo.BaseDict" id="DictByTypeCodeResultMap">
+		<id column="dict_id" property="dict_id"/>
+		<result column="dict_type_code" property="dict_type_code" />
+		<result column="dict_type_name" property="dict_type_name" />
+		<result column="dict_item_name" property="dict_item_name" />
+		<result column="dict_item_code" property="dict_item_code" />
+		<result column="dict_sort" property="dict_sort" />
+		<result column="dict_enable" property="dict_enable" />
+		<result column="dict_memo" property="dict_memo" />
+	</resultMap>
+
+</mapper>
